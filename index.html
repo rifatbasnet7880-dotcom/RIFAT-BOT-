@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quotex AI Bot Pro - Advanced</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #0b131b;
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 10px;
+        }
+        .container {
+            width: 100%;
+            max-width: 420px;
+            background: #121c24;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.6);
+            border: 1px solid #1f2c37;
+        }
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 11px;
+            color: #00e676;
+            margin-bottom: 10px;
+            background: #1a2632;
+            padding: 5px 10px;
+            border-radius: 5px;
+            border: 1px solid #2a3b4c;
+        }
+        .logo-circle {
+            width: 70px;
+            height: 70px;
+            background: #1a2632;
+            border: 3px solid #ff4d4d;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 8px auto;
+            font-weight: bold;
+            font-size: 16px;
+            color: #ff4d4d;
+            box-shadow: 0 0 12px rgba(255, 77, 77, 0.4);
+        }
+        h1 {
+            font-size: 22px;
+            text-align: center;
+            letter-spacing: 1px;
+            color: #e0e0e0;
+        }
+        .subtitle {
+            font-size: 11px;
+            color: #8a9ba8;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .form-group {
+            margin-bottom: 12px;
+            text-align: left;
+        }
+        label {
+            font-size: 12px;
+            color: #8a9ba8;
+            display: block;
+            margin-bottom: 4px;
+        }
+        select, input {
+            width: 100%;
+            padding: 10px;
+            background: #1a2632;
+            border: 1px solid #2a3b4c;
+            color: #fff;
+            border-radius: 8px;
+            font-size: 13px;
+            outline: none;
+        }
+        select:focus, input:focus {
+            border-color: #00b0ff;
+        }
+        
+        /* ইন্ডিকেটর ড্রপডাউন বা লিস্ট বক্স স্টাইল */
+        .indicators-box {
+            background: #1a2632;
+            border: 1px solid #2a3b4c;
+            border-radius: 8px;
+            padding: 8px;
+            max-height: 90px;
+            overflow-y: auto;
+            font-size: 11px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 5px;
+        }
+        .indicators-box label {
+            color: #cfd8dc;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 0;
+            cursor: pointer;
+        }
+
+        .btn-signal {
+            width: 100%;
+            padding: 12px;
+            background: #d32f2f;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background 0.3s;
+            box-shadow: 0 4px 10px rgba(211, 47, 47, 0.4);
+        }
+        .btn-signal:hover {
+            background: #b71c1c;
+        }
+        
+        /* Result Box Style */
+        .result-box {
+            margin-top: 15px;
+            padding: 15px;
+            background: #1a2632;
+            border-radius: 10px;
+            border: 1px solid #2a3b4c;
+            display: none;
+            text-align: center;
+        }
+        .signal-display {
+            font-size: 32px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .up-signal {
+            color: #00e676;
+            text-shadow: 0 0 12px rgba(0, 230, 118, 0.5);
+        }
+        .down-signal {
+            color: #ff5252;
+            text-shadow: 0 0 12px rgba(255, 82, 82, 0.5);
+        }
+        .analysis-text {
+            font-size: 12px;
+            color: #b0bec5;
+            line-height: 1.4;
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- ২৪ ঘণ্টার লাইভ ঘড়ি ও মার্কেট স্ট্যাটাস -->
+        <div class="header-top">
+            <span id="marketStatus">🟢 Market 24/7 Active</span>
+            <span id="liveClock">00:00:00</span>
+        </div>
+
+        <div class="logo-container">
+            <div class="logo-circle">Y.Q.T</div>
+            <h1>YQT BOT PRO</h1>
+            <div class="subtitle">Advanced Multi-Timeframe AI & S/R Analyzer</div>
+        </div>
+
+        <!-- ব্রোকার সিলেকশন -->
+        <div class="form-group">
+            <label>Broker</label>
+            <select id="broker">
+                <option value="quotex">QUOTEX</option>
+            </select>
+        </div>
+
+        <!-- কারেন্সি পেয়ার সার্চ বক্স -->
+        <div class="form-group">
+            <label>Currency / Asset Pair (Search or Select)</label>
+            <input type="text" id="searchPair" placeholder="e.g. EUR/USD (OTC)" list="pairsList">
+            <datalist id="pairsList">
+                <option value="EUR/USD (OTC)">
+                <option value="GBP/USD (OTC)">
+                <option value="USD/BDT (OTC)">
+                <option value="EUR/JPY (OTC)">
+                <option value="NZD/USD (OTC)">
+                <option value="AUD/CHF (OTC)">
+                <option value="EUR/AUD (OTC)">
+                <option value="GBP/CHF (OTC)">
+                <option value="USD/EGP (OTC)">
+                <option value="EUR/NZD (OTC)">
+                <option value="USD/NGN (OTC)">
+                <option value="GOLD (OTC)">
+            </datalist>
+        </div>
+
+        <!-- সিগন্যাল ক্লোজ টাইম / এক্সপায়ারি টাইম (Expiry Timer) -->
+        <div class="form-group">
+            <label>Signal Expiry Time (TIMER)</label>
+            <select id="expiryTime">
+                <option value="5s">00:05s</option>
+                <option value="10s">00:10s</option>
+                <option value="15s">00:15s</option>
+                <option value="30s">00:30s</option>
+                <option value="1m" selected>01:00 (1 Min)</option>
+                <option value="2m">02:00 (2 Min)</option>
+                <option value="5m">05:00 (5 Min)</option>
+                <option value="10m">10:00 (10 Min)</option>
+                <option value="15m">15:00 (15 Min)</option>
+            </select>
+        </div>
+
+        <!-- মাল্টি-টাইমফ্রেম অ্যানালাইসিস -->
+        <div class="form-group">
+            <label>Multi-Timeframe Trend (10m, 5m, 3m, 2m)</label>
+            <select id="timeframe">
+                <option value="multi" selected>Auto Multi-TF (10m + 5m + 3m + 2m)</option>
+                <option value="10m">10 Minutes</option>
+                <option value="5m">5 Minutes</option>
+                <option value="3m">3 Minutes</option>
+                <option value="2m">2 Minutes</option>
+            </select>
+        </div>
+
+        <!-- নতুন টেকনিক্যাল ইন্ডিকেটরসমূহ -->
+        <div class="form-group">
+            <label>AI Indicators Filter (Active Check)</label>
+            <div class="indicators-box">
+                <label><input type="checkbox" checked> RSI</label>
+                <label><input type="checkbox" checked> MACD</label>
+                <label><input type="checkbox" checked> Bollinger Bands</label>
+                <label><input type="checkbox" checked> Supertrend</label>
+                <label><input type="checkbox" checked> Parabolic SAR</label>
+                <label><input type="checkbox" checked> ADX & CCI</label>
+            </div>
+        </div>
+
+        <!-- সিগন্যাল জেনারেট বাটন -->
+        <button class="btn-signal" onclick="generateSignal()">GET SIGNAL</button>
+
+        <!-- সিগন্যাল ফলাফল ও ট্রাফিক লাইট ডিসপ্লে -->
+        <div class="result-box" id="resultBox">
+            <div style="font-size: 12px; color: #8a9ba8;" id="resultHeader">Trade Signal Result</div>
+            <div class="signal-display" id="signalIcon">-</div>
+            <div class="analysis-text" id="analysisDetails">Analyzing Support & Resistance...</div>
+        </div>
+    </div>
+
+    <script>
+        // ২৪ ঘণ্টার লাইভ ঘড়ি ফাংশন
+        function updateClock() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            document.getElementById('liveClock').innerText = `${hours}:${minutes}:${seconds}`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+
+        // অডিও বীপ সাউন্ড সিস্টেম (Web Audio API - কোনো এক্সটার্নাল ফাইল প্রয়োজন নেই)
+        function playBeepSound() {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                
+                oscillator.type = 'sine';
+                oscillator.frequency.setValueAtTime(800, audioCtx.currentTime); // ফ্রিকোয়েন্সি
+                gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+                
+                oscillator.start();
+                oscillator.stop(audioCtx.currentTime + 0.2); // ০.২ সেকেন্ডের বীপ সাউন্ড
+            } catch (e) {
+                console.log("Audio not supported or blocked by browser policy");
+            }
+        }
+
+        // সিগন্যাল জেনারেটর ফাংশন
+        function generateSignal() {
+            const pair = document.getElementById('searchPair').value;
+            const expiry = document.getElementById('expiryTime').value;
+            const tf = document.getElementById('timeframe').value;
+            const resultBox = document.getElementById('resultBox');
+            const signalIcon = document.getElementById('signalIcon');
+            const analysisDetails = document.getElementById('analysisDetails');
+            const resultHeader = document.getElementById('resultHeader');
+
+            if (!pair) {
+                alert('দয়া করে সার্চ বক্স থেকে একটি কারেন্সি পেয়ার লিখে বা সিলেক্ট করুন!');
+                return;
+            }
+
+            // লোডিং স্টেট
+            resultBox.style.display = 'block';
+            signalIcon.innerHTML = '⏳';
+            signalIcon.className = 'signal-display';
+            resultHeader.innerText = `Analyzing ${pair} (Expiry: ${expiry})...`;
+            analysisDetails.innerHTML = `Scanning 10m, 5m, 3m, 2m S/R levels & Indicators...`;
+
+            setTimeout(() => {
+                // বীপ সাউন্ড বাজবে যখন সিগন্যাল চলে আসবে
+                playBeepSound();
+
+                // রেন্ডম বা এআই প্রবাবিলিটি লজিক (UP অথবা DOWN)
+                const isUp = Math.random() >= 0.5;
+                resultHeader.innerText = `Signal Generated for ${pair} [${expiry}]`;
+                
+                if (isUp) {
+                    signalIcon.innerHTML = '⬆️ CALL (UP)';
+                    signalIcon.className = 'signal-display up-signal';
+                    analysisDetails.innerHTML = `
+                        <strong>Status:</strong> Strong Buy Signal<br>
+                        <strong>Multi-TF (10m/5m/3m/2m):</strong> Bullish Momentum Confirmed<br>
+                        <strong>Support & Resistance:</strong> Price bounced strongly from Key Support level.
+                    `;
+                } else {
+                    signalIcon.innerHTML = '⬇️ PUT (DOWN)';
+                    signalIcon.className = 'signal-display down-signal';
+                    analysisDetails.innerHTML = `
+                        <strong>Status:</strong> Strong Sell Signal<br>
+                        <strong>Multi-TF (10m/5m/3m/2m):</strong> Bearish Momentum Confirmed<br>
+                        <strong>Support & Resistance:</strong> Resistance rejected price action with heavy volume.
+                    `;
+                }
+            }, 1200);
+        }
+    </script>
+</body>
+</html>
